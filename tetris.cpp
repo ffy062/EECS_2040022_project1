@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <memory.h>
 using namespace std;
 
 class block;
@@ -188,6 +189,7 @@ class block{
         bool error_check() {
             return error;
         }
+        
 
 };
 
@@ -202,16 +204,14 @@ class game {
         hori = new char*[row];
         for(int i = 0; i < row; ++i) {
             hori[i] = new char[col];
-            for(int j = 0; j < col; ++j) {
-                hori[i][j] = '0';
-            }
+            memset(hori[i], '0', col);
         }
         cal = new int[row];
         for(int i = 0; i < row; ++i) {
             cal[i] = 0;
         }
     }
-    void fall(sring type, int pos) {
+    void fall(string type, int pos) {
         block next(type, pos);
         if(next.error_check()) {
             cout << "Invalid block type\n";
@@ -222,9 +222,30 @@ class game {
         for(int i = 0; i < row; ++i) {
             for(int j = 0; j < col; ++j) {
                 cout << hori[i][j];
+        
             }
             cout << endl;
         }
+    }
+    void eliminate(int row_d) {
+        delete hori[row_d];
+        for(int i = row_d; i > 0; --i) {
+            hori[i] = hori[i - 1];
+            cal[i] = cal[i - 1];
+        }
+        hori[0] = new char[col];
+        cal[0] = 0;
+        memset(hori[0], '0', col);
+    }
+    int check_full(int pos) {
+        int val = -1;
+        for(int i = 0; i < 4; ++i) {
+            if(cal[pos - i] == col) {
+                eliminate(pos - i);
+                val = i;
+            }
+        }
+        return val;
     }
 };
 
