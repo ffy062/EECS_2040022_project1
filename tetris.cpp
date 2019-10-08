@@ -43,7 +43,7 @@ class block{
                 shape[1][1] = 1;
                 shape[1][2] = -1;
                 shape[2][0] = 0;
-                shape[2][1] = -1; 
+                shape[2][1] = -1;
             }
             else if(type == "T4") {
                 shape[0][0] = 0;
@@ -184,13 +184,13 @@ class block{
             }
             else {
                 error = true;
-            } 
+            }
 
         }
         bool error_check() {
             return error;
         }
-        
+
 
 };
 
@@ -203,7 +203,7 @@ class game {
     public:
     game(int row = 0, int col = 0):row(row), col(col) {
         int i;
-        
+
         hori = new char*[row];
         for(i = 0; i < row; ++i) {
             hori[i] = new char[col];
@@ -236,26 +236,27 @@ class game {
         for(int i = 0; i < 4; ++i) {
             int j = 0;
             while(next.shape[i][j] != -1) {
-                hori[next.pos_x + i][next.pos_y - next.shape[i][j]] = '1';
+                hori[next.pos_y - next.shape[i][j]][next.pos_x + i] = '1';
+                //cout << next.pos_x + i  << " " << next.pos_y - next.shape[i][j]  << " " << hori[next.pos_x + i][next.pos_y - next.shape[i][j]] << endl;
                 cal[next.pos_y - next.shape[i][j]]++;
                 height[next.pos_x + i] = next.pos_y - next.shape[i][j] - 1;
                 j++;
             }
         }
+        return;
 
     }
     void show() {
         for(int i = 0; i < row; ++i) {
             for(int j = 0; j < col; ++j) {
                 cout << hori[i][j];
-        
             }
             cout << endl;
         }
     }
     void eliminate(int row_d) {
         int i;
-        
+
         delete hori[row_d];
         for(i = row_d; i > 0; --i) {
             hori[i] = hori[i - 1];
@@ -285,13 +286,13 @@ int main() {
     ios_base::sync_with_stdio(false);
     int row, col, pos;
     string type;
-    
+
     cin >> row >> col;
     if(row > 40 || col > 15 || row < 1 || col < 1) {
         cout << "Invalid value of row or cloumn\n";
         return 1;
     }
-    
+
     game tetris(row, col);
 
     while(cin >> type && type != "End") {
