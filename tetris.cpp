@@ -1,9 +1,10 @@
+
 #include <iostream>
 #include <fstream>
 #include <memory.h>
 using namespace std;
 
-//#define debug
+#define debug
 
 class block;
 class game;
@@ -414,10 +415,12 @@ int main() {
             return 1;
         }
         stop = tetris.fall(next);
-        elim = tetris.check_full(stop);
-        if(!next.check_empty()) {
-            tetris.fall_again(next, elim);
-        }
+        do{
+            elim = tetris.check_full(stop);
+            if(!next.check_empty()) {
+                tetris.fall_again(next, elim);
+            }
+        }while(elim);
         #ifdef debug
             tetris.show();
         #endif // debug
