@@ -3,7 +3,7 @@
 #include <memory.h>
 using namespace std;
 
-#define debug
+//#define debug
 
 class block;
 class game;
@@ -97,7 +97,46 @@ class block{
                 shape[2][2] = -1;
                 len = 3;
             }
-            else if(type == "S1") {
+
+            else if(type == "J1") {
+                shape[0][0] = 0;
+                shape[0][1] = -1;
+                shape[1][0] = 0;
+                shape[1][1] = 1;
+                shape[1][2] = 2;
+                shape[1][3] = -1;
+                len = 2;
+            }
+            else if(type == "J2") {
+                shape[0][0] = 0;
+                shape[0][1] = 1;
+                shape[0][2] = -1;
+                shape[1][0] = 0;
+                shape[1][1] = -1;
+                shape[2][0] = 0;
+                shape[2][1] = -1;
+                len = 3;
+            }
+            else if(type == "J3") {
+                shape[0][0] = 0;
+                shape[0][1] = 1;
+                shape[0][2] = 2;
+                shape[0][3] = -1;
+                shape[1][0] = 2;
+                shape[1][1] = -1;
+                len = 2;
+            }
+            else if(type == "J4") {
+                shape[0][0] = 1;
+                shape[0][1] = -1;
+                shape[1][0] = 1;
+                shape[1][1] = -1;
+                shape[2][0] = 0;
+                shape[2][1] = 1;
+                shape[2][2] = -1;
+                len = 3;
+            }
+             else if(type == "S1") {
                 shape[0][0] = 0;
                 shape[0][1] = -1;
                 shape[1][0] = 0;
@@ -134,46 +173,6 @@ class block{
                 shape[1][1] = 2;
                 shape[1][2] = -1;
                 len = 2;
-            }
-            else if(type == "J1") {
-                shape[0][0] = 0;
-                shape[0][1] = -1;
-                shape[1][0] = 0;
-                shape[1][1] = 1;
-                shape[1][2] = 2;
-                shape[1][3] = -1;
-                len = 2;
-            }
-            else if(type == "J2") {
-                shape[0][0] = 0;
-                shape[0][1] = 1;
-                shape[0][2] = -1;
-                shape[1][0] = 0;
-                shape[1][1] = -1;
-                shape[2][0] = 0;
-                shape[2][1] = -1;
-                shape[3][0] = 0;
-                shape[3][1] = -1;
-                len = 3;
-            }
-            else if(type == "J3") {
-                shape[0][0] = 0;
-                shape[0][1] = 1;
-                shape[0][2] = 2;
-                shape[0][3] = -1;
-                shape[1][0] = 2;
-                shape[1][1] = -1;
-                len = 2;
-            }
-            else if(type == "J4") {
-                shape[0][0] = 1;
-                shape[0][1] = -1;
-                shape[1][0] = 1;
-                shape[1][1] = -1;
-                shape[2][0] = 0;
-                shape[2][1] = 1;
-                shape[2][2] = -1;
-                len = 3;
             }
             else if(type == "I1") {
                 shape[0][0] = 0;
@@ -255,8 +254,8 @@ class game {
             height[i] = row - 1;
         }
     }
-    int fall(block& next, int pos) {
-        int touch =  row, tmp;
+    int fall(block& next) {
+        int touch = row, tmp;
 
         for(int i = 0; i < 4; ++i) {
             if(next.shape[i][0] != -1) {
@@ -264,26 +263,43 @@ class game {
                 if(touch > tmp) {
                     touch = tmp;
                     #ifdef debug
-                        cout << "change touch:" << touch << endl;
+                        cout << "col: " << next.pos_x + i << " change touch:" << touch << endl;
                     #endif // debug
                 }
             }
         }
         next.pos_y = touch;
         for(int i = 0; i < 4; ++i) {
-            int j = 0;
-            while(next.shape[i][j] != -1) {
-                hori[next.pos_y - next.shape[i][j]][next.pos_x + i] = '1';
+            while(next.shape[i][0] != -1 && next.pos_y - next.shape[i][0] >= 0) {
+                hori[next.pos_y - next.shape[i][0]][next.pos_x + i] = '1';
                 #ifdef debug
-                    cout << "new block " <<next.pos_y - next.shape[i][j]  << " " << next.pos_x + i << endl;
+                    cout << "new block " <<next.pos_y - next.shape[i][0]  << " " << next.pos_x + i << endl;
                 #endif // debug
-                cal[next.pos_y - next.shape[i][j]]++;
-                height[next.pos_x + i] = next.pos_y - next.shape[i][j] - 1;
-                j++;
+                cal[next.pos_y - next.shape[i][0]]++;
+                height[next.pos_x + i] = next.pos_y - next.shape[i][0] - 1;
+                next.pop(i);
             }
         }
         return next.pos_y;
 
+    }
+    void fall_again(block& next, int elim) {
+        #ifdef debug
+            cout << "fall again start position: " << next.pos_y + elim << endl;
+        #endif // debug
+        next.pos_y += elim;
+        for(int i = 0; i < 4; ++i) {
+            cout << "next shape[i][0]: " << next.shape[i][0] << endl;
+            while(next.shape[i][0] != -1 && next.pos_y - next.shape[i][0] >= 0) {
+                hori[next.pos_y - next.shape[i][0]][next.pos_x + i] = '1';
+                #ifdef debug
+                    cout << "new block " << next.pos_y - next.shape[i][0]  << " " << next.pos_x + i << endl;
+                #endif // debug
+                cal[next.pos_y - next.shape[i][0]]++;
+                height[next.pos_x + i] = next.pos_y - next.shape[i][0] - 1;
+                next.pop(i);
+            }
+        }
     }
     void show() {
         for(int i = 0; i < row; ++i) {
@@ -303,8 +319,17 @@ class game {
             cout << endl;
         #endif // debug
     }
+    void show_file(ofstream& outfile) {
+        outfile.open("Tetris.output");
+        for(int i = 0; i < row; ++i) {
+            for(int j = 0; j < col; ++j) {
+                outfile << hori[i][j];
+            }
+            outfile << endl;
+        }
+    }
     void eliminate(int row_d) {
-        int i;
+        int i, j;
         #ifdef debug
             cout << "delete row" << row_d << endl;
         #endif // debug
@@ -317,36 +342,52 @@ class game {
         hori[0] = new char[col];
         cal[0] = 0;
         memset(hori[0], '0', col);
-        for(i = 0; i < col; ++i) {
+         for(i = 0; i < col; ++i) {
             if(height[i] <= row_d) {
-                height[i]++;
+                for(j = 0; j < row; ++j) {
+                    if(hori[j][i] == '1') {
+                        break;
+                    }
+                }
+                --j;
+                height[i] = j;
+                #ifdef debug
+                    cout << "change height " << i << "to " << j << endl;
+                #endif // debug
             }
-
         }
+
+
+        return;
     }
-    void check_full(int pos) {
+    int check_full(int pos) {
         #ifdef debug
             cout << "check full start position: " << pos << endl;
         #endif // debug
-        for(int i = 0, j = 0; i < 4; ++i, ++j) {
+        int i, j;
+        for(i = 0, j = 0; i < 4; ++i, ++j) {
             #ifdef debug
                 cout << "position: " << pos - j << " number: " << cal[pos - j] << endl;
             #endif // debug
-            if(cal[pos - j] == col) {
+            if(cal[pos - j] == col && pos - j >= 0) {
                 eliminate(pos - j);
                 --j;
             }
         }
-        return;
+        return i - j;
+    }
+    bool check_game(block& next) {
+        return !next.check_empty();
     }
 };
 
 int main() {
     ios_base::sync_with_stdio(false);
-    int row, col, pos, stop;
+    int row, col, pos, stop, elim;
     string type;
     ifstream myfile;
-    myfile.open("tetris.data.txt");
+    ofstream outfile;
+    myfile.open("Tetris.data");
 
     myfile >> row >> col;
     if(row > 40 || col > 15 || row < 1 || col < 1) {
@@ -372,13 +413,22 @@ int main() {
             cout << "Invalid block type\n";
             return 1;
         }
-        stop = tetris.fall(next, pos);
-        tetris.check_full(stop);
+        stop = tetris.fall(next);
+        elim = tetris.check_full(stop);
+        if(!next.check_empty()) {
+            tetris.fall_again(next, elim);
+        }
         #ifdef debug
             tetris.show();
         #endif // debug
+        if(tetris.check_game(next)) {
+            cout << "Game Over qq\n";
+            break;
+        }
     }
     myfile.close();
+    tetris.show_file(outfile);
+
 
     return 0;
 }
