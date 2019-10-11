@@ -1,10 +1,9 @@
-
 #include <iostream>
 #include <fstream>
 #include <memory.h>
 using namespace std;
 
-#define debug
+//#define debug
 
 class block;
 class game;
@@ -290,7 +289,9 @@ class game {
         #endif // debug
         next.pos_y += elim;
         for(int i = 0; i < 4; ++i) {
-            cout << "next shape[i][0]: " << next.shape[i][0] << endl;
+            #ifdef debug
+                cout << "next shape[i][0]: " << next.shape[i][0] << endl;
+            #endif // debug
             while(next.shape[i][0] != -1 && next.pos_y - next.shape[i][0] >= 0) {
                 hori[next.pos_y - next.shape[i][0]][next.pos_x + i] = '1';
                 #ifdef debug
@@ -321,13 +322,22 @@ class game {
         #endif // debug
     }
     void show_file(ofstream& outfile) {
-        outfile.open("Tetris.output");
         for(int i = 0; i < row; ++i) {
             for(int j = 0; j < col; ++j) {
                 outfile << hori[i][j];
             }
             outfile << endl;
         }
+        #ifdef debug
+            for(int i = 0; i < row; ++i) {
+                outfile << cal[i] << " ";
+            }
+            cout << endl;
+            for(int i = 0; i < col; ++i) {
+                outfile << height[i] << " ";
+            }
+            outfile << endl;
+        #endif // debug
     }
     void eliminate(int row_d) {
         int i, j;
@@ -389,6 +399,7 @@ int main() {
     ifstream myfile;
     ofstream outfile;
     myfile.open("Tetris.data");
+    outfile.open("Tetris.output");
 
     myfile >> row >> col;
     if(row > 40 || col > 15 || row < 1 || col < 1) {
@@ -423,6 +434,7 @@ int main() {
         }while(elim);
         #ifdef debug
             tetris.show();
+            tetris.show_file(outfile);
         #endif // debug
         if(tetris.check_game(next)) {
             cout << "Game Over qq\n";
@@ -431,6 +443,7 @@ int main() {
     }
     myfile.close();
     tetris.show_file(outfile);
+    outfile.close();
 
 
     return 0;
