@@ -3,7 +3,7 @@
 #include <memory.h>
 using namespace std;
 
-//#define debug
+#define debug
 
 class block;
 class game;
@@ -344,13 +344,13 @@ class game {
         #ifdef debug
             cout << "delete row" << row_d << endl;
         #endif // debug
-        delete hori[row_d];
+        char* tmp = hori[row_d];
 
         for(i = row_d; i > 0; --i) {
             hori[i] = hori[i - 1];
             cal[i] = cal[i - 1];
         }
-        hori[0] = new char[col];
+        hori[0] = tmp;
         cal[0] = 0;
         memset(hori[0], '0', col);
          for(i = 0; i < col; ++i) {
@@ -448,3 +448,6 @@ int main() {
 
     return 0;
 }
+
+
+
