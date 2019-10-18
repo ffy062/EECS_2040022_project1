@@ -344,13 +344,13 @@ class game {
         #ifdef debug
             cout << "delete row" << row_d << endl;
         #endif // debug
-        char* tmp = hori[row_d];
+        delete hori[row_d];
 
         for(i = row_d; i > 0; --i) {
             hori[i] = hori[i - 1];
             cal[i] = cal[i - 1];
         }
-        hori[0] = tmp;
+        hori[0] = new char[col];
         cal[0] = 0;
         memset(hori[0], '0', col);
          for(i = 0; i < col; ++i) {
@@ -389,6 +389,23 @@ class game {
     }
     bool check_game(block& next) {
         return !next.check_empty();
+    }
+    void check_output() {
+        char pos;
+        ifstream checkfile;
+        checkfile.open("Tetris.txt");
+        for(int i = 0; i < row; ++i) {
+            for(int j = 0; j < col; ++j) {
+                checkfile >>  pos;
+                if(pos != hori[i][j]) {
+                    cout << "In " << i << " " << j << "my output " << hori[i][j] << " sample output " << pos;
+                    cout << "The output is different form sample output\n";
+                    return;
+                }
+            }
+        }
+        cout << "congratulate!!\n";
+        return;
     }
 };
 
@@ -444,10 +461,10 @@ int main() {
     myfile.close();
     tetris.show_file(outfile);
     outfile.close();
+     #ifdef debug
+            tetris.check_output();
+    #endif // debug
 
 
     return 0;
 }
-
-
-
